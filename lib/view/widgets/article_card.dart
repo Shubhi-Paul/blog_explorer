@@ -77,10 +77,7 @@ class _ArticleCardState extends State<ArticleCard> {
                       color: Colors.blueGrey.shade100,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: ClipRRect(borderRadius: BorderRadius.circular(16), child: customCachedNetworkImage(widget.blog.imageUrl)
-                        //  Image.network(widget.imageUrl,
-                        // ,),
-                        )),
+                    child: ClipRRect(borderRadius: BorderRadius.circular(16), child: customCachedNetworkImage(widget.blog.imageUrl))),
                 Expanded(
                     child: Padding(
                   padding: const EdgeInsets.all(8.0),

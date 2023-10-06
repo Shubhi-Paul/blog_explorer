@@ -19,12 +19,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     return Scaffold(
       body: Stack(
         children: [
+          Container(height: 500, width: double.infinity, child: customCachedNetworkImageBG(widget.blog.imageUrl)),
           Container(
-              height: 500, // Set the fixed height to 500 pixels
-              width: double.infinity,
-              child: customCachedNetworkImageBG(widget.blog.imageUrl)),
-          Container(
-            height: 500, // Set the fixed height to 500 pixels
+            height: 500,
             width: double.infinity,
             color: Colors.black26,
           ),
@@ -68,21 +65,16 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             children: [
               Container(
                 margin: const EdgeInsets.only(top: 200, left: 32, right: 32),
-                // alignment: Alignment.topLeft,
                 child: Text(
                   widget.blog.title,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white),
                 ),
               ),
               Container(
-                // alignment: Alignment.topLeft,
                 margin: const EdgeInsets.only(top: 20, left: 32, right: 32),
                 child: const Text(
                   "Written by XYZ ",
-                  style: TextStyle(
-                      fontSize: 16,
-                      // fontWeight: FontWeight.w800,
-                      color: Colors.white),
+                  style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
             ],
@@ -94,7 +86,8 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               padding: const EdgeInsets.only(top: 50),
               child: Container(
                 padding: const EdgeInsets.all(32),
-                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(50), topRight: Radius.circular(50))),
+                decoration:
+                    const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(50), topRight: Radius.circular(50))),
                 child: Text(extraData),
               ),
             ),

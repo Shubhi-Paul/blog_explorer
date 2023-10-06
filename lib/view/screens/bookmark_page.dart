@@ -16,7 +16,7 @@ class BookmarkedArticles extends StatefulWidget {
 
 class _BookmarkedArticlesState extends State<BookmarkedArticles> {
   final TextEditingController _searchController = TextEditingController();
-  MyCategory? _selectedCategory; // Change the type here
+  MyCategory? _selectedCategory;
 
   List<Article> _runFilter(String enteredKeyword, MyCategory? selectedCategory, BookmarkProvider provider) {
     List<Article> result = [];
@@ -25,7 +25,7 @@ class _BookmarkedArticlesState extends State<BookmarkedArticles> {
       result = provider.getBookmarkedArticleList();
     } else {
       result = provider.getBookmarkedArticleList().where((article) {
-        bool matchesCategory = selectedCategory == null || article.category.contains(selectedCategory.categoryName); // Use categoryName
+        bool matchesCategory = selectedCategory == null || article.category.contains(selectedCategory.categoryName);
         bool matchesKeyword = enteredKeyword.isEmpty || article.title.toLowerCase().contains(enteredKeyword.toLowerCase());
 
         return matchesCategory && matchesKeyword;
@@ -84,10 +84,10 @@ class _BookmarkedArticlesState extends State<BookmarkedArticles> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 const Text("Need Specific Blogs?",
-                  style: TextStyle(
-                    fontSize: 16
-                  ),),
+                  const Text(
+                    "Need Specific Blogs?",
+                    style: TextStyle(fontSize: 16),
+                  ),
                   Container(
                     width: 160,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -99,28 +99,24 @@ class _BookmarkedArticlesState extends State<BookmarkedArticles> {
                     child: DropdownButton<MyCategory>(
                       value: _selectedCategory,
                       onChanged: (MyCategory? newValue) {
-                        // Change the type here
                         setState(() {
                           _selectedCategory = newValue;
                           filteredArticles = _runFilter(_searchController.text, _selectedCategory, provider);
                         });
                       },
                       items: [null, ...categories].map<DropdownMenuItem<MyCategory>>((MyCategory? value) {
-                        // Change the type here
                         return DropdownMenuItem<MyCategory>(
                           value: value,
                           child: Text(value?.categoryName ?? "Choose a category"),
                         );
                       }).toList(),
-                      style: const TextStyle(color: Colors.black), // Customize text color
-                      underline: Container(), // Remove the default underline
-                      isExpanded: true, // Allow the dropdown to take the full width
-                      icon: const Icon(Icons.arrow_drop_down), // Customize the dropdown icon
-                      iconSize: 24, // Set the icon size
-                      elevation: 16, // Set the dropdown elevation
-                      dropdownColor: Colors.white, // Set the dropdown background color
-                      // Customize the shape using the decoration property
-                      // In this example, I'm using a rounded rectangle border
+                      style: const TextStyle(color: Colors.black),
+                      underline: Container(),
+                      isExpanded: true,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      iconSize: 24,
+                      elevation: 16,
+                      dropdownColor: Colors.white,
                     ),
                   ),
                 ],

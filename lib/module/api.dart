@@ -9,7 +9,6 @@ import 'package:hive/hive.dart';
 // function for storing the fetched data locally to hive
 Future<void> saveDataToHive(List<Article> articles) async {
   var box = await Hive.openBox<Article>('articlesBox');
-  // Clear the box to avoid duplicates (optional)
   await box.clear();
   await box.addAll(articles);
 }

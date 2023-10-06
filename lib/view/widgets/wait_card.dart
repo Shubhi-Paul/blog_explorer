@@ -23,7 +23,7 @@ class WaitCard extends StatelessWidget {
             ),
           ),
           ClipRRect(
-            borderRadius: BorderRadius.circular(40), // Adjust the radius as needed
+            borderRadius: BorderRadius.circular(40),
             child: Image.asset(
               'assets/searching.png',
               height: 300,

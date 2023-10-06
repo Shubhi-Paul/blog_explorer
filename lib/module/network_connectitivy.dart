@@ -9,7 +9,7 @@ class NetworkConnectivity {
   final _networkConnectivity = Connectivity();
   final _controller = StreamController.broadcast();
   Stream get myStream => _controller.stream;
-  // 1. 
+
   void initialise() async {
     ConnectivityResult result = await _networkConnectivity.checkConnectivity();
     _checkStatus(result);
@@ -18,7 +18,7 @@ class NetworkConnectivity {
       _checkStatus(result);
     });
   }
-// 2.
+
   void _checkStatus(ConnectivityResult result) async {
     bool isOnline = false;
     try {
@@ -29,5 +29,6 @@ class NetworkConnectivity {
     }
     _controller.sink.add({result: isOnline});
   }
+
   void disposeStream() => _controller.close();
 }

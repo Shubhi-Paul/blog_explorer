@@ -9,9 +9,7 @@ class bookmarkInstructionCard extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.only(left: 8,right: 8, bottom: 8),
-        // alignment: Alignment.center,
-        // width: 100,
+        margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: lmbglight,
@@ -26,12 +24,7 @@ class bookmarkInstructionCard extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Image(image: AssetImage("assets/bookmark.png")),
-          Text(
-            "To bookmark an article just double tap on it :)",
-          textAlign: TextAlign.center, 
-          style: TextStyle(
-            fontSize: 20, 
-            color: lmcontrast)),
+          Text("To bookmark an article just double tap on it :)", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, color: lmcontrast)),
         ]),
       ),
     );

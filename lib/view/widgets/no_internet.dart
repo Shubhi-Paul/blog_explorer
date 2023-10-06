@@ -2,7 +2,6 @@ import 'package:blog_explorer/contants/colors.dart';
 import 'package:flutter/material.dart';
 
 class NoInternet extends StatelessWidget {
-  // final VoidCallback onRetry;
   const NoInternet({super.key});
 
   @override

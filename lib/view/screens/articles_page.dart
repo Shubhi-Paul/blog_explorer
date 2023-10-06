@@ -31,10 +31,8 @@ class _ArticlesPageState extends State<ArticlesPage> {
                   ),
                 ),
                 SizedBox(
-                  // color: Colors.red.shade100,
                   height: 260,
                   child: ListView.builder(
-                      // shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
                       itemCount: recommendatedArticles.length,
                       itemBuilder: (context, index) {
@@ -44,11 +42,9 @@ class _ArticlesPageState extends State<ArticlesPage> {
                       }),
                 ),
                 SizedBox(
-                    // color: Colors.red.shade100,
-                    // margin: EdgeInsets.only(top: 0),
                     height: 45,
                     child: Consumer<CategoryNotifier>(builder: (context, provider, child) {
-                      // print("consumer called");
+    
                       return ListView.builder(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,

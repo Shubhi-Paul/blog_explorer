@@ -11,14 +11,11 @@ class CategoryNotifier extends ChangeNotifier {
   int get categoryLength => categories.length;
 
   void setCategory(int selectedIndex) {
-    // print(selectedIndex);
     _selectedCategoryIndex = selectedIndex+ 1;
     for (var i = 0; i < categoryLength; i++) {
       _myCategories[i].categorySelected = (i == _selectedCategoryIndex);
-      //  print(categories[i].categorySelected);
     }
     notifyListeners();
-    // print("Listener Notified");
   }
 
   String getMyCategory(int index) {
