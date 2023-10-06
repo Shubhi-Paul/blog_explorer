@@ -1,15 +1,17 @@
-class Category {
+class MyCategory {
   final String categoryName;
   late bool categorySelected;
 
-  Category({required this.categoryName, required this.categorySelected});
+  MyCategory({required this.categoryName, required this.categorySelected});
 }
 
-List<Category> Categories = [
-  Category(categoryName: "Recommendation", categorySelected: false),
-  Category(categoryName: "National", categorySelected: true),
-  Category(categoryName: "International", categorySelected: false),
-  Category(categoryName: "Sports", categorySelected: false),
-  Category(categoryName: "Technology", categorySelected: false),
-  Category(categoryName: "Business", categorySelected: false),
-];
+MyCategory recommended = MyCategory(categoryName: "Recommendation", categorySelected: false);
+MyCategory national = MyCategory(categoryName: "National", categorySelected: true);
+MyCategory international = MyCategory(categoryName: "International", categorySelected: false);
+MyCategory sports = MyCategory(categoryName: "Sports", categorySelected: false);
+MyCategory technology = MyCategory(categoryName: "Technology", categorySelected: false);
+MyCategory business = MyCategory(categoryName: "Business", categorySelected: false);
+
+final List<MyCategory> categories = [recommended, national, international, sports, business, technology];
+
+MyCategory? _selectedCategory;

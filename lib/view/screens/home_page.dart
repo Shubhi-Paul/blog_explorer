@@ -1,12 +1,17 @@
+import 'package:blog_explorer/contants/colors.dart';
 import 'package:blog_explorer/data/articles_data.dart';
-import 'package:blog_explorer/data/category_data.dart';
 import 'package:blog_explorer/module/api.dart';
-import 'package:blog_explorer/view/widgets/article_card.dart';
-import 'package:blog_explorer/view/widgets/categories_card.dart';
-import 'package:blog_explorer/view/widgets/error_card.dart';
+import 'package:blog_explorer/providers/bottom_nav_provider.dart';
+import 'package:blog_explorer/view/screens/articles_page.dart';
+import 'package:blog_explorer/view/screens/bookmark_page.dart';
+import 'package:blog_explorer/view/widgets/no_internet.dart';
 import 'package:blog_explorer/view/widgets/wait_card.dart';
-import 'package:blog_explorer/view/widgets/top_preference_card.dart';
 import 'package:flutter/material.dart';
+import 'package:blog_explorer/module/network_connectitivy.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,33 +23,86 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Article> fetchedList = [];
   List<Article> recommendatedArticles = [];
-  List<Article> categoryArticles = [];
-  String selectedCategory = Categories[1].categoryName;
+  late String selectedCategory;
   bool isDataAvailble = false;
-  bool isError = false;
+  bool isOnline = true;
+  Map _source = {ConnectivityResult.none: false};
+  final NetworkConnectivity _networkConnectivity = NetworkConnectivity.instance;
+
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
+    _networkConnectivity.initialise();
+    _networkConnectivity.myStream.listen((source) {
+      _source = source;
 
-    getBlogs();
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        switch (_source.keys.toList()[0]) {
+          case ConnectivityResult.mobile:
+            isOnline = _source.values.toList()[0];
+            break;
+          case ConnectivityResult.wifi:
+            isOnline = _source.values.toList()[0];
+            break;
+          case ConnectivityResult.none:
+          default:
+            isOnline = false;
+        }
+
+        setState(() {
+          isOnline = isOnline;
+        });
+
+        if (isOnline) {
+          getBlogs();
+        } else {
+          getArticlesFromHive();
+        }
+      });
+    });
+  }
+
+  Future<void> getArticlesFromHive() async {
+    try {
+      var box = await Hive.openBox<Article>('articlesBox');
+      print('Is box empty? ${box.isEmpty}');
+      // check if there is older data in hive
+      if (box.isNotEmpty) {
+        fetchedList = box.values.toList();
+        // data available
+        isDataAvailble = true;
+      }
+    } catch (e) {
+      print('Error: $e');
+
+      // data unavaiable
+      isDataAvailble = false;
+    }
   }
 
   void getBlogs() async {
     try {
-      isError = false;
       List<Article> fetchedBlogs = await fetchBlogs();
       setState(() {
         if (fetchedBlogs[0].category != 'error') {
+          // able to connect to api
+          isOnline = true;
+
+          // getting the required blogs
           fetchedList = fetchedBlogs;
-          recommendatedArticles =
-              getCustomArticles(Categories[0].categoryName, fetchedBlogs);
-          categoryArticles = getCustomArticles(selectedCategory, fetchedBlogs);
+
+          // data available
           isDataAvailble = true;
-          isError = false;
-          print(recommendatedArticles);
+          print("Data Fetched Successfully");
         } else {
-          isError = true;
+          print(fetchedBlogs[0].title);
+
+          // assuming the error is because of no internet connection
+          isDataAvailble = false;
         }
       });
     } catch (e) {
@@ -52,107 +110,50 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // to retry connecting to server incase the internet is connected after opening the app
-  void retryFetchingBlogs() {
-    getBlogs();
-  }
-
   @override
   Widget build(BuildContext context) {
+    var availablePages = [
+      ArticlesPage(
+        fetchedList: fetchedList,
+      ),
+      const BookmarkedArticles()
+    ];
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-        body: Builder(builder: (context) {
-          if (isError) {
-            return ErrorCard(
-              status: "Unable to Connect, Please check your internet",
-              onRetry : retryFetchingBlogs,
-            );
-          }
-          if (!isDataAvailble) {
-            return WaitCard(
-              status: "Fetching Data ....",
-            );
-          } else {
-            return Container(
-              padding: EdgeInsets.only(top: 32, left: 8, right: 8),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        "Recommendations",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 30),
-                      ),
-                    ),
-                    Container(
-                      // color: Colors.red.shade100,
-                      height: 260,
-                      child: ListView.builder(
-                          // shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: recommendatedArticles.length,
-                          itemBuilder: (context, index) {
-                            return TopPreferenceCard(
-                              title: recommendatedArticles[index].title,
-                              imageUrl: recommendatedArticles[index].imageUrl,
-                            );
-                          }),
-                    ),
-                    Container(
-                      // color: Colors.red.shade100,
-                      margin: EdgeInsets.only(top: 8),
-                      height: 45,
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: Categories.length - 1,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedCategory =
-                                        Categories[index + 1].categoryName;
-                                    for (var i = 0;
-                                        i < Categories.length;
-                                        i++) {
-                                      if (i == index + 1) {
-                                        Categories[i].categorySelected = true;
-                                        selectedCategory =
-                                            Categories[i].categoryName;
-                                      } else {
-                                        Categories[i].categorySelected = false;
-                                      }
-                                    }
-                                    categoryArticles = getCustomArticles(
-                                        selectedCategory, fetchedList);
-                                  });
-                                },
-                                child: CategoryCard(
-                                  category: Categories[index + 1].categoryName,
-                                  isSelected:
-                                      Categories[index + 1].categorySelected,
-                                ));
-                          }),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          itemCount: categoryArticles.length,
-                          itemBuilder: (context, index) {
-                            return ArticleCard(
-                              title: categoryArticles[index].title,
-                              imageUrl: categoryArticles[index].imageUrl,
-                            );
-                          }),
-                    ),
-                  ]),
-            );
-          }
-        }),
-        bottomNavigationBar: BottomNavigationBar(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: lmbglight,
+        elevation: 5,
+        title: const Row(
+          children: [
+            Text("Blogs"),
+            Text(
+              "Burg",
+              style: TextStyle(fontWeight: FontWeight.w700, color: lmcontrast),
+            )
+          ],
+        ),
+        actions: [
+          Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              child: isOnline
+                  ? const Icon(
+                      Icons.wifi,
+                      color: lmcontrast,
+                    )
+                  : const Icon(
+                      Icons.wifi_off_sharp,
+                      color: lmcontrast,
+                    ))
+        ],
+      ),
+      backgroundColor: Colors.white,
+      bottomNavigationBar: Consumer<BottomNavProvider>(builder: (contect, provider, child) {
+        return BottomNavigationBar(
+          selectedItemColor: lmcontrast,
+          unselectedItemColor: lmdark,
+          backgroundColor: lmbglight,
+          currentIndex: provider.currentIndex,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.newspaper),
@@ -163,6 +164,31 @@ class _HomePageState extends State<HomePage> {
               label: 'Bookmark',
             ),
           ],
-        ));
+          onTap: (index) {
+            provider.currentIndex = index;
+          },
+        );
+      }),
+      body: Builder(
+        builder: (context) {
+          if (!isOnline && !isDataAvailble) {
+            return const NoInternet();
+          }
+          if (!isDataAvailble) {
+            return const WaitCard();
+          } else {
+            return Consumer<BottomNavProvider>(builder: (contect, provider, child) {
+              return availablePages[provider.currentIndex];
+            });
+          }
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _networkConnectivity.disposeStream();
+    super.dispose();
   }
 }
