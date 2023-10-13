@@ -16,10 +16,10 @@ class ArticleAdapter extends TypeAdapter<Article> {
   }
 
   @override
-  void write(BinaryWriter writer, Article blog) {
-    writer.writeString(blog.id);
-    writer.writeString(blog.imageUrl);
-    writer.writeString(blog.title);
-    writer.writeString(blog.category);
+  void write(BinaryWriter writer, Article obj) {
+    writer.writeString(obj.id);
+    writer.writeString(obj.imageUrl);
+    writer.writeString(obj.title);
+    writer.writeString(obj.category);
   }
 }

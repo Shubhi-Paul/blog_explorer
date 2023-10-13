@@ -8,7 +8,7 @@ import 'package:blog_explorer/view/widgets/article_card.dart';
 import 'package:blog_explorer/data/category_data.dart';
 
 class BookmarkedArticles extends StatefulWidget {
-  const BookmarkedArticles({Key? key});
+  const BookmarkedArticles({super.key});
 
   @override
   State<BookmarkedArticles> createState() => _BookmarkedArticlesState();
@@ -123,7 +123,7 @@ class _BookmarkedArticlesState extends State<BookmarkedArticles> {
               ),
             ),
             filteredArticles.isEmpty
-                ? const bookmarkInstructionCard()
+                ? const BookmarkInstructionCard()
                 : Expanded(
                     child: ListView.builder(
                       shrinkWrap: true,

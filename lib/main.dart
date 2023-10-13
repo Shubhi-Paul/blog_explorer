@@ -8,45 +8,53 @@ import 'data/articles_data.dart';
 import 'package:provider/provider.dart';
 import 'providers/category_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 void main() async {
-  try {
-    // check if hive is initialized
-    await Hive.initFlutter();
-    Hive.registerAdapter(ArticleAdapter());
-    await Hive.openBox<Article>('articlesBox');
-    print("Hive initialized");
-    await Hive.openBox<Article>('bookmarkedArticlesBox');
-    print("Hive bookmarkedArticlesBox opened");
-    print("Hive initialized");
-  } catch (e) {
-    // print error incase hive is not initalized
-    print('Error initializing Hive: $e');
-  } finally {
-    // run the app irrespective of hive initialization
-    runApp(MultiProvider(providers: [
-      ChangeNotifierProvider<CategoryNotifier>(create: (_) => CategoryNotifier()),
-      ChangeNotifierProvider<BottomNavProvider>(create: (_) => BottomNavProvider()),
-      ChangeNotifierProvider<BookmarkProvider>(create: (_) => BookmarkProvider()),
-    ], child: const MyApp()));
-  }
+  try {await initHiveForFlutter();
+  Hive.registerAdapter(ArticleAdapter());
+  await Hive.openBox<Article>('articlesBox');
+  await Hive.openBox<Article>('bookmarkedArticlesBox');
+} catch(e){
+  print('Error initializing Hive: $e');
+}
+
+final HttpLink httpLink = HttpLink('https://db.grow90.org/v1/graphql');
+  ValueNotifier<GraphQLClient> client = ValueNotifier(GraphQLClient(
+    link: httpLink,
+    cache: GraphQLCache(store: HiveStore()),
+  ));
+
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CategoryNotifier>(create: (_) => CategoryNotifier()),
+        ChangeNotifierProvider<BottomNavProvider>(create: (_) => BottomNavProvider()),
+        ChangeNotifierProvider<BookmarkProvider>(create: (_) => BookmarkProvider()),
+      ],
+      child: MyApp(
+        client: client,
+      )));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ValueNotifier<GraphQLClient> client;
+  const MyApp({Key? key, required this.client}): super(key: key);
   @override
   Widget build(BuildContext context) {
-     SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-    return MaterialApp(
-      title: 'Blogs Burg',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    return GraphQLProvider(
+      client: client,
+      child: MaterialApp(
+        title: 'Blogs Burg',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: HomePage(client: client.value,),
       ),
-      home: HomePage(),
     );
   }
 }

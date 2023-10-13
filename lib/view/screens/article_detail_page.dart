@@ -19,7 +19,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(height: 500, width: double.infinity, child: customCachedNetworkImageBG(widget.blog.imageUrl)),
+          SizedBox(height: 500, width: double.infinity, child: customCachedNetworkImageBG(widget.blog.imageUrl)),
           Container(
             height: 500,
             width: double.infinity,
@@ -64,7 +64,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 200, left: 32, right: 32),
+                margin: const EdgeInsets.only(top: 150, left: 32, right: 32),
                 child: Text(
                   widget.blog.title,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white),
@@ -88,7 +88,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 padding: const EdgeInsets.all(32),
                 decoration:
                     const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(50), topRight: Radius.circular(50))),
-                child: Text(extraData),
+                child: const Text(extraData),
               ),
             ),
           )

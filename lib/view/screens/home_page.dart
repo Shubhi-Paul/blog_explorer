@@ -12,9 +12,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final GraphQLClient client;
+
+  const HomePage({required this.client, super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -59,7 +63,8 @@ class _HomePageState extends State<HomePage> {
 
         if (isOnline) {
           getBlogs();
-        } else {
+        }
+        else {
           getArticlesFromHive();
         }
       });
@@ -86,7 +91,8 @@ class _HomePageState extends State<HomePage> {
 
   void getBlogs() async {
     try {
-      List<Article> fetchedBlogs = await fetchBlogs();
+      print('fetching data');
+      List<Article> fetchedBlogs = await fetchBlogs(widget.client);
       setState(() {
         if (fetchedBlogs[0].category != 'error') {
           // able to connect to api
@@ -120,70 +126,71 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: lmbglight,
-        elevation: 5,
-        title: const Row(
-          children: [
-            Text("Blogs"),
-            Text(
-              "Burg",
-              style: TextStyle(fontWeight: FontWeight.w700, color: lmcontrast),
-            )
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: lmbglight,
+          elevation: 5,
+          title: const Row(
+            children: [
+              Text("Blogs"),
+              Text(
+                "Burg",
+                style: TextStyle(fontWeight: FontWeight.w700, color: lmcontrast),
+              )
+            ],
+          ),
+          actions: [
+            Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: isOnline
+                    ? const Icon(
+                        Icons.wifi,
+                        color: lmcontrast,
+                      )
+                    : const Icon(
+                        Icons.wifi_off_sharp,
+                        color: lmcontrast,
+                      ))
           ],
         ),
-        actions: [
-          Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: isOnline
-                  ? const Icon(
-                      Icons.wifi,
-                      color: lmcontrast,
-                    )
-                  : const Icon(
-                      Icons.wifi_off_sharp,
-                      color: lmcontrast,
-                    ))
-        ],
-      ),
-      backgroundColor: Colors.white,
-      bottomNavigationBar: Consumer<BottomNavProvider>(builder: (contect, provider, child) {
-        return BottomNavigationBar(
-          selectedItemColor: lmcontrast,
-          unselectedItemColor: lmdark,
-          backgroundColor: lmbglight,
-          currentIndex: provider.currentIndex,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.newspaper),
-              label: 'BlogBurg',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark),
-              label: 'Bookmark',
-            ),
-          ],
-          onTap: (index) {
-            provider.currentIndex = index;
+        backgroundColor: Colors.white,
+        bottomNavigationBar: Consumer<BottomNavProvider>(builder: (contect, provider, child) {
+          return BottomNavigationBar(
+            selectedItemColor: lmcontrast,
+            unselectedItemColor: lmdark,
+            backgroundColor: lmbglight,
+            currentIndex: provider.currentIndex,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.newspaper),
+                label: 'BlogBurg',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.bookmark),
+                label: 'Bookmark',
+              ),
+            ],
+            onTap: (index) {
+              provider.currentIndex = index;
+            },
+          );
+        }),
+        body: Builder(
+          builder: (context) {
+            if (!isOnline & !isDataAvailble) {
+              return const NoInternet();
+            }
+            if (!isDataAvailble) {
+              return const WaitCard();
+            }
+            else {
+              return Consumer<BottomNavProvider>(builder: (contect, provider, child) {
+                return availablePages[provider.currentIndex];
+              });
+            }
           },
+        ),
         );
-      }),
-      body: Builder(
-        builder: (context) {
-          if (!isOnline && !isDataAvailble) {
-            return const NoInternet();
-          }
-          if (!isDataAvailble) {
-            return const WaitCard();
-          } else {
-            return Consumer<BottomNavProvider>(builder: (contect, provider, child) {
-              return availablePages[provider.currentIndex];
-            });
-          }
-        },
-      ),
-    );
   }
 
   @override

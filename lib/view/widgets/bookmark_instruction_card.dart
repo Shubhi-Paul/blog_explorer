@@ -1,8 +1,8 @@
 import 'package:blog_explorer/contants/colors.dart';
 import 'package:flutter/material.dart';
 
-class bookmarkInstructionCard extends StatelessWidget {
-  const bookmarkInstructionCard({super.key});
+class BookmarkInstructionCard extends StatelessWidget {
+  const BookmarkInstructionCard({super.key});
 
   @override
   Widget build(BuildContext context) {
